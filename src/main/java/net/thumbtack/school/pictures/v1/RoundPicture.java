@@ -13,8 +13,7 @@ public class RoundPicture {
         this.format = format;
     }
     public RoundPicture(int xCenter, int yCenter, int radius, int format) {
-        this.center.setX(xCenter);
-        this.center.setY(yCenter);
+        this.center = new Point(xCenter, yCenter);
         this.radius = radius;
         this.format = format;
     }
@@ -24,8 +23,7 @@ public class RoundPicture {
         this.format = 1;
     }
     public RoundPicture(int xCenter, int yCenter, int radius) {
-        this.center.setX(xCenter);
-        this.center.setY(yCenter);
+        this.center = new Point(xCenter, yCenter);
         this.radius = radius;
         this.format = 1;
     }
@@ -46,12 +44,15 @@ public class RoundPicture {
         this.center = point;
     }
     public void setCenter(int x, int y) {
+
         this.center = new Point(x, y);
     }
     public void setRadius(int radius) {
+
         this.radius = radius;
     }
     public void setFormat(int format) {
+
         this.format = format;
     }
     public void moveRel(int dx, int dy) {
@@ -65,22 +66,25 @@ public class RoundPicture {
         }
     }
     public boolean isInside(int x, int y) {
-        if (Math.pow(x, 2) + Math.pow(y, 2) > Math.pow(this.radius, 2)) {
+        if (Math.pow(this.center.getX() - x, 2) + Math.pow(this.center.getY() - y, 2) > Math.pow(this.radius, 2)) {
             return false;
         }
         return true;
     }
     public boolean isInside(Point point) {
-        if (Math.pow(point.getX(), 2) + Math.pow(point.getY(), 2) > Math.pow(this.radius, 2)) {
+        if (Math.pow(this.center.getX() - point.getX(), 2) + Math.pow(this.center.getY() - point.getY(), 2) > Math.pow(this.radius, 2)) {
             return false;
         }
         return true;
     }
     public boolean isFullyVisibleOnDesktop(Desktop desktop) {
-        if (this.radius <= desktop.getHeight() / 2) {
-            return true;
+        if (this.center.getX() + this.getRadius() >= desktop.getWidth() || this.center.getY() + this.getRadius() >= desktop.getHeight()) {
+            return false;
         }
-        return false;
+        if (this.center.getX() - this.getRadius() < 0 || this.center.getY() - this.getRadius() < 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override

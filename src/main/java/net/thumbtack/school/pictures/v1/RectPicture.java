@@ -15,7 +15,7 @@ public class RectPicture {
 
     public RectPicture(int xLeft, int yTop, int width, int height, int format) {
         this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width, yTop + height);
+        this.bottomRight = new Point(xLeft + width - 1, yTop + height - 1);
         this.format = format;
     }
 
@@ -27,7 +27,7 @@ public class RectPicture {
 
     public RectPicture(int xLeft, int yTop, int width, int height) {
         this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width, yTop + height);
+        this.bottomRight = new Point(xLeft + width-1, yTop + height-1);
         this.format = 1;
     }
 
@@ -52,18 +52,22 @@ public class RectPicture {
     }
 
     public int getWidth() {
-        return bottomRight.getX() - topLeft.getX();
+        return bottomRight.getX() - topLeft.getX() + 1;
     }
 
     public int getHeight() {
-        return  bottomRight.getY() - topLeft.getY();
+        return  bottomRight.getY() - topLeft.getY() + 1;
     }
 
     public void moveTo(int x, int y) {
+        this.bottomRight.setX(x + this.getWidth() - 1);
+        this.bottomRight.setY(y + this.getHeight() - 1);
         this.topLeft = new Point(x, y);
     }
 
     public void moveTo(Point point) {
+        this.bottomRight.setX(point.getX() + this.getWidth() - 1);
+        this.bottomRight.setY(point.getY() + this.getHeight() - 1);
         this.topLeft = point;
     }
 
@@ -75,13 +79,15 @@ public class RectPicture {
     }
 
     public void resize(double ratio) {
-        this.bottomRight.setX((int) (this.topLeft.getX() + ((this.bottomRight.getX() - this.topLeft.getX()) * ratio)));
-        this.bottomRight.setY((int) (this.topLeft.getY() + (this.bottomRight.getY() - this.topLeft.getY()) * ratio));
-        if (this.bottomRight.getX() - this.topLeft.getX() < 1) {
-            this.bottomRight.setX(this.topLeft.getX() + 1);
+        int resizeWidth = (int) (this.getWidth() * ratio);
+        int resizeHeight = (int) (this.getHeight() * ratio);
+        this.bottomRight.setX((int) (this.topLeft.getX() + resizeWidth) - 1);
+        this.bottomRight.setY((int) (this.topLeft.getY() + resizeHeight) - 1);
+        if (this.getHeight() < 1) {
+            this.bottomRight.setY(this.topLeft.getY());
         }
-        if (this.bottomRight.getY() - this.topLeft.getY() < 1) {
-            this.topLeft.setY(this.bottomRight.getY() - 1);
+        if (this.getWidth() < 1) {
+            this.bottomRight.setX(this.topLeft.getX());
         }
     }
 
@@ -119,7 +125,13 @@ public class RectPicture {
         return true;
     }
     public boolean isFullyVisibleOnDesktop(Desktop desktop) {
-        if (this.bottomRight.getX() - this.topLeft.getX() > desktop.getWidth() || this.bottomRight.getY() - this.topLeft.getY() < desktop.getHeight()) {
+        if (this.getWidth() > desktop.getWidth() || this.getHeight() > desktop.getHeight()) {
+            return false;
+        }
+        if (this.topLeft.getX() + this.getWidth() > desktop.getWidth() || this.topLeft.getX() < 0) {
+            return false;
+        }
+        if (this.topLeft.getY() + this.getHeight() > desktop.getHeight() || this.topLeft.getY() < 0) {
             return false;
         }
         return true;
