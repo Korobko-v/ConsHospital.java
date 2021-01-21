@@ -206,5 +206,6 @@ public class RectPicture extends Picture implements Movable, Resizable {
     public int hashCode() {
         return Objects.hash(format, topLeft, bottomRight);
     }
+
 }
 

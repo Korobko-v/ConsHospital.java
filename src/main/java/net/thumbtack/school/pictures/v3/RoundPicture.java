@@ -47,9 +47,6 @@ public class RoundPicture extends Picture implements Movable, Resizable {
         this.radius = radius;
         try {
             this.format = PictureFormat.fromString(sFormat);
-
-        } catch (IllegalArgumentException ex) {
-            throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
         }
         catch (NullPointerException e) {
             throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
@@ -66,38 +63,34 @@ public class RoundPicture extends Picture implements Movable, Resizable {
         this.format = PictureFormat.GIF;
     }
     public Point getCenter() {
-
         return center;
     }
     public int getRadius() {
-
         return radius;
     }
     public PictureFormat getFormat() {
-
         return format;
     }
     public void moveTo(int x, int y) {
         this.center.setX(x);
         this.center.setY(y);
     }
-
     @Override
     public void moveTo(Point point) {
         this.center.setX(point.getX());
         this.center.setY(point.getY());
     }
-
     public void setCenter(int x, int y) {
-
-        this.center = new Point(x, y);
+        this.center.setX(x);
+        this.center.setY(y);
     }
     public void setRadius(int radius) {
-
         this.radius = radius;
     }
-    public void setFormat(PictureFormat format) {
-
+    public void setFormat(PictureFormat format) throws GraphicException {
+if (format == null) {
+    throw  new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
+}
         this.format = format;
     }
     public void moveRel(int dx, int dy) {

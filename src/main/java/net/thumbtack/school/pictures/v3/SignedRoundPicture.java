@@ -12,7 +12,6 @@ public class SignedRoundPicture extends RoundPicture implements Signed {
     private int radius;
     private PictureFormat format;
     private String signature;
-    private String sFormat;
 
     public SignedRoundPicture(Point center, int radius, PictureFormat format, String signature) throws GraphicException {
         super(center, radius, format);
@@ -37,7 +36,12 @@ public class SignedRoundPicture extends RoundPicture implements Signed {
     }
 
     public SignedRoundPicture(int xCenter, int yCenter, int radius, PictureFormat format, String signature) throws GraphicException {
-        super(xCenter, yCenter, radius, format);
+        super(xCenter, yCenter, radius);
+        if (format == null) {
+            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
+
+        }
+        this.format = format;
         if (signature == null) {
             throw new GraphicException(GraphicErrorCode.NULL_SIGNATURE);
         }

@@ -4,6 +4,7 @@ import net.thumbtack.school.exceptions.GraphicException;
 import net.thumbtack.school.exceptions.v3.GraphicErrorCode;
 import net.thumbtack.school.iface.v3.Movable;
 import net.thumbtack.school.iface.v3.Resizable;
+import net.thumbtack.school.winobjects.v3.Cursor;
 import net.thumbtack.school.winobjects.v3.Desktop;
 
 public abstract class Picture implements Movable, Resizable {
@@ -39,4 +40,6 @@ public abstract class Picture implements Movable, Resizable {
     public abstract boolean equals(Object o);
 
     public abstract int hashCode();
+
+
 }
