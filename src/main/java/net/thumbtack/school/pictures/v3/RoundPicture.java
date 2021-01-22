@@ -11,6 +11,7 @@ import java.util.Objects;
 public class RoundPicture extends Picture implements Movable, Resizable {
     private Point center;
     private int radius;
+    // REVU см. REVU в классе RectPicture
     private PictureFormat format;
     private String sFormat;
 

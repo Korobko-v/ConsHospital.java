@@ -8,9 +8,11 @@ import net.thumbtack.school.winobjects.v3.Cursor;
 import net.thumbtack.school.winobjects.v3.Desktop;
 
 public abstract class Picture implements Movable, Resizable {
+	// REVU private
     PictureFormat format;
 
 
+    // REVU есть поле - должен быть конструктор
     public PictureFormat getFormat() {
 
         return format;
@@ -23,12 +25,16 @@ public abstract class Picture implements Movable, Resizable {
         this.format = format;
     }
 
+    // REVU не нужно, есть в Movable
     public abstract void moveTo(int x, int y);
 
+    // REVU не нужно, есть в Movable
     public abstract void moveTo(Point point);
 
+    // REVU не нужно, есть в Movable
     public abstract void moveRel(int dx, int dy);
 
+    // REVU не нужно, есть в Resizable
     public abstract void resize(double ratio);
 
     public abstract boolean isInside(int x, int y);
@@ -37,6 +43,7 @@ public abstract class Picture implements Movable, Resizable {
 
     public abstract boolean isFullyVisibleOnDesktop(Desktop desktop);
 
+    // REVU эти методы не должны быть абстрактными. 
     public abstract boolean equals(Object o);
 
     public abstract int hashCode();

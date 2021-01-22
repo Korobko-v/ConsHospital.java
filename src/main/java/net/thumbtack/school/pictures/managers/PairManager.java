@@ -40,7 +40,9 @@ public class PairManager <A extends Picture, B extends Picture> {
         this.secondPicture = secondPicture;
     }
 
+    // REVU PairManager is a raw type. References to generic type PairManager<A,B> should be parameterized
     boolean allPicturesFullyVisibleOnDesktop(PairManager anotherPairManager, Desktop desktop) {
+    	// REVU вызовите следующий метод
         if (this.firstPicture.isFullyVisibleOnDesktop(desktop) && this.secondPicture.isFullyVisibleOnDesktop(desktop)
         && anotherPairManager.firstPicture.isFullyVisibleOnDesktop(desktop) && anotherPairManager.secondPicture.isFullyVisibleOnDesktop(desktop)) {
             return true;
@@ -48,6 +50,7 @@ public class PairManager <A extends Picture, B extends Picture> {
         return false;
     }
 
+    // REVU PairManager is a raw type. References to generic type PairManager<A,B> should be parameterized
     static boolean allPicturesFullyVisibleOnDesktop(PairManager firstManager, PairManager anotherPairManager, Desktop desktop) {
         if (firstManager.firstPicture.isFullyVisibleOnDesktop(desktop) && firstManager.secondPicture.isFullyVisibleOnDesktop(desktop)
                 && anotherPairManager.firstPicture.isFullyVisibleOnDesktop(desktop) && anotherPairManager.secondPicture.isFullyVisibleOnDesktop(desktop)) {

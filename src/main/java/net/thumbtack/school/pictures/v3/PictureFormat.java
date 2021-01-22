@@ -10,6 +10,7 @@ public enum PictureFormat {
     JPG;
 
     public static PictureFormat fromString(String formatString) throws GraphicException {
+    	// REVU переменная не нужна. Просто return внутри try
         PictureFormat format = null;
         try {
             format = PictureFormat.valueOf(formatString);

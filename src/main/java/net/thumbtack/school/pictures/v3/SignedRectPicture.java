@@ -7,10 +7,12 @@ import net.thumbtack.school.winobjects.v3.Desktop;
 
 public class SignedRectPicture extends RectPicture implements Signed {
     private String signature;
+    // REVU оба поля не нужны
     private String sFormat;
     private PictureFormat format;
 
 
+    // REVU см. REVU в классе RectPicture
 
     public SignedRectPicture(Point topLeft, Point bottomRight, PictureFormat format, String signature) throws GraphicException {
 
@@ -96,6 +98,7 @@ public class SignedRectPicture extends RectPicture implements Signed {
         this.signature = signature;
     }
 
+    // REVU Если метод у потомка только вызывает тот же метод родителя и ничего больше не делает, то его переопределять не надо. Удалите все такие методы
     @Override
     public Point getTopLeft() {
 

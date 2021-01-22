@@ -10,10 +10,12 @@ import java.util.Objects;
 public class SignedRoundPicture extends RoundPicture implements Signed {
     private Point center;
     private int radius;
+    // REVU оба поля не нужны
     private PictureFormat format;
     private String signature;
 
-    public SignedRoundPicture(Point center, int radius, PictureFormat format, String signature) throws GraphicException {
+    // REVU см. REVU в классе RectPicture
+   public SignedRoundPicture(Point center, int radius, PictureFormat format, String signature) throws GraphicException {
         super(center, radius, format);
         if (signature == null) {
             throw new GraphicException(GraphicErrorCode.NULL_SIGNATURE);

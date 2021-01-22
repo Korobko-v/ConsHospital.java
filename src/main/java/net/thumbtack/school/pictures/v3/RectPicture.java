@@ -12,11 +12,14 @@ import java.util.Objects;
 public class RectPicture extends Picture implements Movable, Resizable {
     private Point topLeft;
     private Point bottomRight;
+    // REVU не нужно, есть у родителя
     private PictureFormat format;
+    // REVU вообще не нужно
     private String sFormat;
 
     public RectPicture(Point topLeft, Point bottomRight, PictureFormat format) throws GraphicException {
 
+    	// REVU сделайте конструктор в родительском классе с параметром PictureFormat и вызывайте его через super
         if (format == null) {
             throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
         }
@@ -27,6 +30,7 @@ public class RectPicture extends Picture implements Movable, Resizable {
 
 
     }
+// REVU В классе должен быть только один конструктор, явно присваивающий значения полям. Остальные должны вызывать другой конструктор
 
     public RectPicture(Point topLeft, Point bottomRight, String sFormat) throws GraphicException {
         this.topLeft = topLeft;
