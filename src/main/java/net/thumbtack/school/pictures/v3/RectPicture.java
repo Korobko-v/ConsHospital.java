@@ -12,53 +12,41 @@ import java.util.Objects;
 public class RectPicture extends Picture implements Movable, Resizable {
     private Point topLeft;
     private Point bottomRight;
-    // REVU не нужно, есть у родителя
-    private PictureFormat format;
-    // REVU вообще не нужно
-    private String sFormat;
 
+    // REVU сделайте конструктор в родительском классе с параметром PictureFormat и вызывайте его через super
     public RectPicture(Point topLeft, Point bottomRight, PictureFormat format) throws GraphicException {
 
-    	// REVU сделайте конструктор в родительском классе с параметром PictureFormat и вызывайте его через super
+        super(format);
         if (format == null) {
             throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
         }
-
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
-        this.format = format;
 
 
     }
-// REVU В классе должен быть только один конструктор, явно присваивающий значения полям. Остальные должны вызывать другой конструктор
 
     public RectPicture(Point topLeft, Point bottomRight, String sFormat) throws GraphicException {
-        this.topLeft = topLeft;
-        this.bottomRight = bottomRight;
+        this(topLeft, bottomRight);
         try {
-        this.format = PictureFormat.fromString(sFormat);
-
+            this.setFormat(PictureFormat.fromString(sFormat));
         } catch (IllegalArgumentException ex) {
             throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
+        }
+        catch (NullPointerException e) {
+            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
         }
     }
 
     public RectPicture(int xLeft, int yTop, int width, int height, PictureFormat format) throws GraphicException {
-
-        if (format == null) {
-            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
-        }
-
-        this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width - 1, yTop + height - 1);
-            this.format = format;
+        this(xLeft, yTop, width, height);
+        this.setFormat(format);
     }
 
     public RectPicture(int xLeft, int yTop, int width, int height, String sFormat) throws GraphicException {
-        this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width - 1, yTop + height - 1);
+        this(xLeft, yTop, width, height);
         try {
-            this.format = PictureFormat.fromString(sFormat);
+            this.setFormat(PictureFormat.fromString(sFormat));
 
         } catch (IllegalArgumentException ex) {
             throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
@@ -68,16 +56,17 @@ public class RectPicture extends Picture implements Movable, Resizable {
         }
     }
 
-    public RectPicture(Point topLeft, Point bottomRight) {
+    public RectPicture(Point topLeft, Point bottomRight) throws GraphicException {
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
-        this.format = PictureFormat.GIF;
+        this.setFormat(PictureFormat.GIF);
+
     }
 
-    public RectPicture(int xLeft, int yTop, int width, int height) {
-        this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width-1, yTop + height-1);
-            this.format = PictureFormat.GIF;
+    public RectPicture(int xLeft, int yTop, int width, int height) throws GraphicException {
+            this.setTopLeft(new Point(xLeft, yTop));
+        this.setBottomRight(new Point(xLeft + width - 1, yTop + height - 1));
+            this.setFormat(PictureFormat.GIF);
     }
 
     public Point getTopLeft() {
@@ -91,8 +80,7 @@ public class RectPicture extends Picture implements Movable, Resizable {
     }
 
     public PictureFormat getFormat() {
-
-        return format;
+       return super.getFormat();
     }
 
     public void setTopLeft(Point topLeft) {
@@ -200,16 +188,15 @@ public class RectPicture extends Picture implements Movable, Resizable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         RectPicture that = (RectPicture) o;
-        return format == that.format &&
-                Objects.equals(topLeft, that.topLeft) &&
+        return Objects.equals(topLeft, that.topLeft) &&
                 Objects.equals(bottomRight, that.bottomRight);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(format, topLeft, bottomRight);
+        return Objects.hash(super.hashCode(), topLeft, bottomRight);
     }
-
 }
 

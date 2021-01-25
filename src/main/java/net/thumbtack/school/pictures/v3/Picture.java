@@ -7,12 +7,20 @@ import net.thumbtack.school.iface.v3.Resizable;
 import net.thumbtack.school.winobjects.v3.Cursor;
 import net.thumbtack.school.winobjects.v3.Desktop;
 
+import java.util.Objects;
+
 public abstract class Picture implements Movable, Resizable {
-	// REVU private
-    PictureFormat format;
+
+    private PictureFormat format;
+    public Picture() {
+    }
+
+    public Picture(PictureFormat format) {
+        this.format = format;
+    }
 
 
-    // REVU есть поле - должен быть конструктор
+
     public PictureFormat getFormat() {
 
         return format;
@@ -25,28 +33,23 @@ public abstract class Picture implements Movable, Resizable {
         this.format = format;
     }
 
-    // REVU не нужно, есть в Movable
-    public abstract void moveTo(int x, int y);
-
-    // REVU не нужно, есть в Movable
-    public abstract void moveTo(Point point);
-
-    // REVU не нужно, есть в Movable
-    public abstract void moveRel(int dx, int dy);
-
-    // REVU не нужно, есть в Resizable
-    public abstract void resize(double ratio);
-
     public abstract boolean isInside(int x, int y);
 
     public abstract boolean isInside(Point point);
 
     public abstract boolean isFullyVisibleOnDesktop(Desktop desktop);
 
-    // REVU эти методы не должны быть абстрактными. 
-    public abstract boolean equals(Object o);
 
-    public abstract int hashCode();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Picture picture = (Picture) o;
+        return format == picture.format;
+    }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(format);
+    }
 }
