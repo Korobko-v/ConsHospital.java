@@ -9,33 +9,19 @@ import net.thumbtack.school.winobjects.v3.Desktop;
 import java.util.Objects;
 
 
-public class RectPicture extends Picture implements Movable, Resizable {
+public class RectPicture extends Picture {
     private Point topLeft;
     private Point bottomRight;
 
     // REVU сделайте конструктор в родительском классе с параметром PictureFormat и вызывайте его через super
-    public RectPicture(Point topLeft, Point bottomRight, PictureFormat format) throws GraphicException {
-
+    public RectPicture(Point topLeft, Point bottomRight, PictureFormat format) {
         super(format);
-        if (format == null) {
-            throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
-        }
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
-
-
     }
 
     public RectPicture(Point topLeft, Point bottomRight, String sFormat) throws GraphicException {
-        this(topLeft, bottomRight);
-        try {
-            this.setFormat(PictureFormat.fromString(sFormat));
-        } catch (IllegalArgumentException ex) {
-            throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
-        }
-        catch (NullPointerException e) {
-            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
-        }
+        this(topLeft, bottomRight, PictureFormat.fromString(sFormat));
     }
 
     public RectPicture(int xLeft, int yTop, int width, int height, PictureFormat format) throws GraphicException {
@@ -44,29 +30,16 @@ public class RectPicture extends Picture implements Movable, Resizable {
     }
 
     public RectPicture(int xLeft, int yTop, int width, int height, String sFormat) throws GraphicException {
-        this(xLeft, yTop, width, height);
-        try {
-            this.setFormat(PictureFormat.fromString(sFormat));
+        this(xLeft, yTop, width, height, PictureFormat.fromString(sFormat));
+        }
 
-        } catch (IllegalArgumentException ex) {
-            throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
-        }
-        catch (NullPointerException e) {
-            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
-        }
+
+    public RectPicture(Point topLeft, Point bottomRight) {
+        this(topLeft, bottomRight,PictureFormat.GIF);
     }
 
-    public RectPicture(Point topLeft, Point bottomRight) throws GraphicException {
-        this.topLeft = topLeft;
-        this.bottomRight = bottomRight;
-        this.setFormat(PictureFormat.GIF);
-
-    }
-
-    public RectPicture(int xLeft, int yTop, int width, int height) throws GraphicException {
-            this.setTopLeft(new Point(xLeft, yTop));
-        this.setBottomRight(new Point(xLeft + width - 1, yTop + height - 1));
-            this.setFormat(PictureFormat.GIF);
+    public RectPicture(int xLeft, int yTop, int width, int height) {
+        this(new Point(xLeft, yTop), new Point(xLeft + width - 1, yTop + height - 1),PictureFormat.GIF);
     }
 
     public Point getTopLeft() {

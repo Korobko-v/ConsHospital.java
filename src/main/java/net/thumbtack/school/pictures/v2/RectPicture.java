@@ -18,21 +18,15 @@ public class RectPicture extends Picture implements Movable, Resizable {
     }
 
     public RectPicture(int xLeft, int yTop, int width, int height, int format) {
-        this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width - 1, yTop + height - 1);
-        this.format = format;
+        this(new Point(xLeft, yTop), new Point(xLeft + width - 1, yTop + height - 1), format);
     }
 
     public RectPicture(Point topLeft, Point bottomRight) {
-        this.topLeft = topLeft;
-        this.bottomRight = bottomRight;
-        this.format = 1;
+        this(topLeft, bottomRight, 1);
     }
 
     public RectPicture(int xLeft, int yTop, int width, int height) {
-        this.topLeft = new Point(xLeft, yTop);
-        this.bottomRight = new Point(xLeft + width-1, yTop + height-1);
-        this.format = 1;
+        this(new Point(xLeft, yTop),new Point(xLeft + width-1, yTop + height-1),1);
     }
 
     public Point getTopLeft() {

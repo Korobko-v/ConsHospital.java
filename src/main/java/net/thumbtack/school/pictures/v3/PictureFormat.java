@@ -16,6 +16,9 @@ public enum PictureFormat {
         } catch (IllegalArgumentException ex) {
             throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
         }
+        catch (NullPointerException e) {
+            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
+        }
     }
 }
 

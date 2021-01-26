@@ -8,57 +8,36 @@ import net.thumbtack.school.winobjects.v3.Desktop;
 
 import java.util.Objects;
 
-public class RoundPicture extends Picture implements Movable, Resizable {
+public class RoundPicture extends Picture {
     private Point center;
     private int radius;
 
     // REVU В классе должен быть только один конструктор, явно присваивающий значения полям. Остальные должны вызывать другой конструктор
-    public RoundPicture(Point center, int radius, PictureFormat format) throws GraphicException {
+    public RoundPicture(Point center, int radius, PictureFormat format) {
         super(format);
-        if (format == null) {
-            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
-        }
         this.center = center;
         this.radius = radius;
     }
 
     public RoundPicture(Point center, int radius, String sFormat) throws GraphicException {
-        this(center, radius);
-        try {
-            this.setFormat(PictureFormat.fromString(sFormat));
-
-        } catch (IllegalArgumentException ex) {
-            throw new GraphicException(GraphicErrorCode.WRONG_PICTURE_FORMAT);
-        }
+        this(center, radius, PictureFormat.fromString(sFormat));
     }
 
     public RoundPicture(int xCenter, int yCenter, int radius, PictureFormat format) throws GraphicException {
         this(xCenter, yCenter, radius);
-        if (format == null) {
-            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
-        }
         this.setFormat(format);
     }
 
     public RoundPicture(int xCenter, int yCenter, int radius, String sFormat) throws GraphicException {
-        this(xCenter, yCenter, radius);
-        try {
-            this.setFormat(PictureFormat.fromString(sFormat));
-        } catch (NullPointerException e) {
-            throw new GraphicException(GraphicErrorCode.NULL_PICTURE_FORMAT);
-        }
+        this(xCenter, yCenter, radius, PictureFormat.fromString(sFormat));
     }
 
-    public RoundPicture(Point center, int radius) throws GraphicException {
-        this.center = center;
-        this.radius = radius;
-        this.setFormat(PictureFormat.GIF);
+    public RoundPicture(Point center, int radius) {
+        this(center,radius,PictureFormat.GIF);
     }
 
-    public RoundPicture(int xCenter, int yCenter, int radius) throws GraphicException {
-        this.center = new Point(xCenter, yCenter);
-        this.radius = radius;
-        this.setFormat(PictureFormat.GIF);
+    public RoundPicture(int xCenter, int yCenter, int radius) {
+        this(new Point(xCenter, yCenter),radius, PictureFormat.GIF);
     }
 
     public Point getCenter() {
