@@ -1,9 +1,6 @@
 package net.thumbtack.school.pictures.v3;
 
 import net.thumbtack.school.exceptions.GraphicException;
-import net.thumbtack.school.exceptions.v3.GraphicErrorCode;
-import net.thumbtack.school.iface.v3.Movable;
-import net.thumbtack.school.iface.v3.Resizable;
 import net.thumbtack.school.winobjects.v3.Desktop;
 
 import java.util.Objects;

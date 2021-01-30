@@ -2,9 +2,10 @@ package net.thumbtack.school.pictures.v3;
 
 import net.thumbtack.school.winobjects.v3.Desktop;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Point {
+public class Point implements Serializable {
     private int x;
     private int y;
 

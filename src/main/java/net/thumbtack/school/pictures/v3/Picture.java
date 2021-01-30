@@ -7,11 +7,12 @@ import net.thumbtack.school.iface.v3.Resizable;
 import net.thumbtack.school.winobjects.v3.Cursor;
 import net.thumbtack.school.winobjects.v3.Desktop;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Picture implements Movable, Resizable {
+public abstract class Picture implements Movable, Resizable, Serializable {
 
-    private PictureFormat format;
+   private transient PictureFormat format;
     public Picture() {
     }
 
