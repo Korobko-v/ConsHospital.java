@@ -9,18 +9,9 @@ public class Trainee implements Serializable {
     int rating;
 
     public Trainee(String firstName, String lastName, int rating) throws TrainingException {
-        if (firstName == null || firstName.equals("")) {
-            throw new TrainingException(TrainingErrorCode.TRAINEE_WRONG_FIRSTNAME);
-        }
-        this.firstName = firstName;
-        if (lastName == null || lastName.equals("")) {
-            throw new TrainingException(TrainingErrorCode.TRAINEE_WRONG_LASTNAME);
-        }
-        this.lastName = lastName;
-        if (rating < 1 || rating > 5) {
-            throw new TrainingException(TrainingErrorCode.TRAINEE_WRONG_RATING);
-        }
-        this.rating = rating;
+        this.setFirstName(firstName);
+        this.setLastName(lastName);
+        this.setRating(rating);
     }
 
     public String getFirstName() {

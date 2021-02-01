@@ -1,29 +1,16 @@
 package net.thumbtack.school.ttschool;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-public class School {
-    String name;
-    int year;
-    Set<Group> groups;
+public class School implements Comparator<Group> {
+    private String name;
+    private int year;
+    private TreeSet<Group> groups;
 
-    public School(String name, int year) throws TrainingException {
-        try {
-            this.name = name;
-            if (name.equals("")) {
-                throw new TrainingException(TrainingErrorCode.SCHOOL_WRONG_NAME);
-            }
-        } catch (NullPointerException e) {
-            throw new TrainingException(TrainingErrorCode.SCHOOL_WRONG_NAME);
-        }
-        try {
-            this.year = year;
-        } catch (Exception e) {
-            throw new TrainingException(TrainingErrorCode.SCHOOL_WRONG_YEAR);
-        }
-        groups = new HashSet<>();
+    public School(String name, int year) throws TrainingException  {
+    	this.setName(name);
+    	this.setYear(year);
+        groups = new TreeSet<Group>((o1, o2) -> o1.getName().compareTo(o2.getName()));
     }
 
     public String getName() {
@@ -32,14 +19,11 @@ public class School {
     }
 
     public void setName(String name) throws TrainingException {
-        try {
-            this.name = name;
-            if (name.equals("")) {
-                throw new TrainingException(TrainingErrorCode.SCHOOL_WRONG_NAME);
-            }
-        } catch (NullPointerException e) {
+        if (name == null || name.equals("")) {
             throw new TrainingException(TrainingErrorCode.SCHOOL_WRONG_NAME);
         }
+            this.name = name;
+
     }
 
     public int getYear() {
@@ -47,31 +31,23 @@ public class School {
         return year;
     }
 
-    public void setYear(int year) throws TrainingException {
-
-        try {
+    public void setYear(int year) {
             this.year = year;
-        } catch (Exception e) {
-            throw new TrainingException(TrainingErrorCode.SCHOOL_WRONG_YEAR);
-        }
     }
 
     public Set<Group> getGroups() {
-
         return groups;
     }
 
     public void  addGroup(Group group) throws TrainingException {
-        for (Group g : groups) {
-            if (g.getName().equals(group.getName())) {
-                throw new TrainingException(TrainingErrorCode.DUPLICATE_GROUP_NAME);
-            }
+        if (containsGroup(group)) {
+            throw new TrainingException(TrainingErrorCode.DUPLICATE_GROUP_NAME);
         }
-        this.groups.add(group);
+        groups.add(group);
     }
 
     public void  removeGroup(Group group) throws TrainingException {
-        if (!groups.contains(group)) {
+        if (!containsGroup(group)) {
             throw new TrainingException(TrainingErrorCode.GROUP_NOT_FOUND);
         }
             this.groups.remove(group);
@@ -86,13 +62,14 @@ public class School {
         }
     }
 
-    public boolean  containsGroup(Group group) {
-       for (Group g : groups) {
-           if (g.getName().equals(group.getName())) {
-               return true;
-           }
-       }
-       return false;
+    public boolean containsGroup(Group group) {
+        return groups.contains(group);
+    }
+
+
+    @Override
+    public int compare(Group o1, Group o2) {
+        return o1.getName().compareTo(o2.getName());
     }
 
     @Override
@@ -109,4 +86,6 @@ public class School {
     public int hashCode() {
         return Objects.hash(name, year, groups);
     }
+
+
 }

@@ -12,14 +12,16 @@ public class TraineeMap {
     }
 
     public void addTraineeInfo(Trainee trainee, String institute) throws TrainingException {
-        if (this.traineeMap.containsKey(trainee)) {
-            throw new TrainingException(TrainingErrorCode.DUPLICATE_TRAINEE);
-        }
-        traineeMap.put(trainee,institute);
+
+            if (traineeMap.putIfAbsent(trainee,institute) != null) {
+                throw new TrainingException(TrainingErrorCode.DUPLICATE_TRAINEE);
+            }
+        traineeMap.putIfAbsent(trainee,institute);
+
     }
 
     public void replaceTraineeInfo(Trainee trainee, String institute) throws TrainingException {
-        if (!traineeMap.containsKey(trainee)) {
+        if (traineeMap.putIfAbsent(trainee,institute) == null) {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
             this.traineeMap.replace(trainee, traineeMap.get(trainee), institute);
@@ -27,7 +29,7 @@ public class TraineeMap {
 
     public void removeTraineeInfo(Trainee trainee) throws TrainingException {
 
-        if (!traineeMap.containsKey(trainee)) {
+        if (traineeMap.putIfAbsent(trainee, traineeMap.get(trainee)) == null) {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
             traineeMap.remove(trainee);
@@ -39,7 +41,7 @@ public class TraineeMap {
     }
 
     public String getInstituteByTrainee(Trainee trainee) throws TrainingException {
-        if (!traineeMap.containsKey(trainee)) {
+        if (traineeMap.putIfAbsent(trainee, traineeMap.get(trainee)) == null) {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
             return this.traineeMap.get(trainee);
@@ -50,11 +52,10 @@ public class TraineeMap {
     }
 
     public Set<String> getAllInstitutes() {
-        Set<String> institutes = new HashSet<>(traineeMap.values());
-        return institutes;
+        return new HashSet<>(traineeMap.values());
     }
 
     public boolean isAnyFromInstitute(String institute) {
-        return this.traineeMap.containsValue(institute);
+        return traineeMap.containsValue(institute);
     }
 }

@@ -3,19 +3,13 @@ package net.thumbtack.school.ttschool;
 import java.util.*;
 
 public class Group {
-    String name;
-    String room;
-    List<Trainee> trainees;
+    private String name;
+    private String room;
+    private List<Trainee> trainees;
 
     public Group(String name, String room) throws TrainingException {
-        if (name == null || name.equals("")) {
-            throw new TrainingException(TrainingErrorCode.GROUP_WRONG_NAME);
-        }
-            this.name = name;
-        if (room == null || room.equals("")) {
-            throw new TrainingException(TrainingErrorCode.GROUP_WRONG_ROOM);
-        }
-            this.room = room;
+    	this.setName(name);
+        this.setRoom(room);
         this.trainees = new ArrayList<>();
     }
 
@@ -51,13 +45,10 @@ public class Group {
     }
 
     public void removeTrainee(Trainee trainee) throws TrainingException {
-        if (!this.trainees.contains(trainee)) {
+        if (!trainees.remove(trainee)) {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
-            this.trainees.remove(trainee);
-
-
-
+            trainees.remove(trainee);
     }
 
     public void removeTrainee(int index) throws TrainingException {
@@ -86,36 +77,12 @@ public class Group {
         throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
     }
 
-    public void sortTraineeListByFirstNameAscendant() throws TrainingException {
-        String[] names = new String[this.trainees.size()];
-        for (int i = 0; i < names.length; i++) {
-            names[i] = this.trainees.get(i).getFirstName();
-        }
-        Arrays.parallelSort(names);
-        List<Trainee> sortedList = new ArrayList<>();
-        for (String s : names) {
-            sortedList.add(getTraineeByFirstName(s));
-            this.trainees.remove(getTraineeByFirstName(s));
-        }
-        this.trainees = sortedList;
+    public void sortTraineeListByFirstNameAscendant() {
+        Collections.sort(trainees, (o1, o2) -> o1.getFirstName().compareTo(o2.getFirstName()));
     }
 
-    public void sortTraineeListByRatingDescendant() throws TrainingException {
-        Integer[] rates = new Integer[this.trainees.size()];
-        for (int i = 0; i < rates.length; i++) {
-            rates[i] = this.trainees.get(i).getRating();
-        }
-        Arrays.parallelSort(rates, Collections.reverseOrder());
-        List<Trainee> sortedList = new ArrayList<>();
-        for (int s : rates) {
-           for (Trainee t : this.trainees) {
-               if (t.getRating() == s) {
-                   sortedList.add(t);
-               }
-        }
-
-        }
-        this.trainees = sortedList;
+    public void sortTraineeListByRatingDescendant() {
+        Collections.sort(trainees, (o1, o2) -> o2.getRating() - o1.getRating());
     }
 
     public void  reverseTraineeList() {
@@ -130,26 +97,24 @@ public class Group {
 
 
     public List<Trainee>  getTraineesWithMaxRating() throws TrainingException {
-        int maxRating = Integer.MIN_VALUE;
         if (this.trainees.isEmpty()) {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
+        sortTraineeListByRatingDescendant();
         List<Trainee> traineesWithMaxRating = new ArrayList<>();
-        for (Trainee t : this.trainees) {
-            maxRating = Math.max(maxRating, t.getRating());
-        }
-        for (Trainee t : this.trainees) {
-            if (t.getRating() == maxRating) {
-                traineesWithMaxRating.add(t);
+        for (int i = 0; i < trainees.size(); i++) {
+            if (trainees.get(i).getRating() == trainees.get(0).getRating()) {
+                traineesWithMaxRating.add(trainees.get(i));
+            }
+            else {
+                break;
             }
         }
         return traineesWithMaxRating;
     }
 
     public boolean  hasDuplicates() {
-        Set<Trainee> set = new HashSet<>();
-        set.addAll(this.trainees);
-        return (this.trainees.size() != set.size());
+        return (this.trainees.size() != new HashSet<>(trainees).size());
     }
 
     @Override

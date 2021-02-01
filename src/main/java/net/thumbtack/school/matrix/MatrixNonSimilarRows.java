@@ -1,5 +1,6 @@
 package net.thumbtack.school.matrix;
 
+
 import java.util.*;
 
 public class MatrixNonSimilarRows {
@@ -11,18 +12,14 @@ public class MatrixNonSimilarRows {
     }
 
     public List<int[]> getNonSimilarRows() {
-        List<TreeSet<Integer>> list = new ArrayList<>();
-        List<int[]> rows = new ArrayList<>();
+        Map<Set<Integer>, int[]> map = new HashMap<>();
         for (int i = this.matrix.length-1; i >= 0; i--) {
-            TreeSet<Integer> set = new TreeSet<>();
+            Set<Integer> set = new HashSet<>();
             for (int a : matrix[i]) {
                 set.add(a);
             }
-            if (!list.contains(set)) {
-                list.add(set);
-                rows.add(matrix[i]);
-            }
+            map.putIfAbsent(set, matrix[i]);
         }
-        return rows;
+        return new ArrayList<>(map.values());
     }
 }
