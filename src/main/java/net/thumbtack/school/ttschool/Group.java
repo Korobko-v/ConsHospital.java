@@ -3,11 +3,13 @@ package net.thumbtack.school.ttschool;
 import java.util.*;
 
 public class Group {
+	// REVU все private
     String name;
     String room;
     List<Trainee> trainees;
 
     public Group(String name, String room) throws TrainingException {
+    	// REVU вызовите сеттеры, не дублируйте код
         if (name == null || name.equals("")) {
             throw new TrainingException(TrainingErrorCode.GROUP_WRONG_NAME);
         }
@@ -51,6 +53,7 @@ public class Group {
     }
 
     public void removeTrainee(Trainee trainee) throws TrainingException {
+    	// REVU не надр contains, remove сама скажет
         if (!this.trainees.contains(trainee)) {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
@@ -87,10 +90,12 @@ public class Group {
     }
 
     public void sortTraineeListByFirstNameAscendant() throws TrainingException {
+    	// REVU просто Collections.sort с Comparator
         String[] names = new String[this.trainees.size()];
         for (int i = 0; i < names.length; i++) {
             names[i] = this.trainees.get(i).getFirstName();
         }
+        // REVU параллельная сортировка на такой малой выборке будет медленнне за счет накладных расходов на создание потоков
         Arrays.parallelSort(names);
         List<Trainee> sortedList = new ArrayList<>();
         for (String s : names) {
@@ -101,6 +106,7 @@ public class Group {
     }
 
     public void sortTraineeListByRatingDescendant() throws TrainingException {
+    	// REVU просто Collections.sort с Comparator
         Integer[] rates = new Integer[this.trainees.size()];
         for (int i = 0; i < rates.length; i++) {
             rates[i] = this.trainees.get(i).getRating();
@@ -135,6 +141,7 @@ public class Group {
             throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
         List<Trainee> traineesWithMaxRating = new ArrayList<>();
+        // REVU а без нахождения максимума сможете ?
         for (Trainee t : this.trainees) {
             maxRating = Math.max(maxRating, t.getRating());
         }
@@ -147,6 +154,9 @@ public class Group {
     }
 
     public boolean  hasDuplicates() {
+    	// REVU у HashSet есть конструктор по Collection
+    	// так что в одну строчку
+    	// return ...
         Set<Trainee> set = new HashSet<>();
         set.addAll(this.trainees);
         return (this.trainees.size() != set.size());

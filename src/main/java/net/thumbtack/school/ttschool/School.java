@@ -5,11 +5,13 @@ import java.util.Objects;
 import java.util.Set;
 
 public class School {
+	// REVU все private
     String name;
     int year;
     Set<Group> groups;
 
     public School(String name, int year) throws TrainingException {
+    	// REVU вызовите сеттеры, не дублируйте код
         try {
             this.name = name;
             if (name.equals("")) {
@@ -32,6 +34,7 @@ public class School {
     }
 
     public void setName(String name) throws TrainingException {
+    	// REVU не надо ловить NullPointerException. Просто проверьте на null 
         try {
             this.name = name;
             if (name.equals("")) {
@@ -49,6 +52,7 @@ public class School {
 
     public void setYear(int year) throws TrainingException {
 
+    	// REVU а что Вы тут ловите ? С какой стати при присваивании int в int может возникнуть исключение ?
         try {
             this.year = year;
         } catch (Exception e) {
@@ -62,6 +66,8 @@ public class School {
     }
 
     public void  addGroup(Group group) throws TrainingException {
+    	// REVU Линейный проход для добавления - это плохо, медленно. Подумайте, как сделать, чтобы при формировании Set использовалось только name. Подсказка - кроме HashSet, есть и другой
+
         for (Group g : groups) {
             if (g.getName().equals(group.getName())) {
                 throw new TrainingException(TrainingErrorCode.DUPLICATE_GROUP_NAME);
@@ -87,6 +93,7 @@ public class School {
     }
 
     public boolean  containsGroup(Group group) {
+    	// REVU то же
        for (Group g : groups) {
            if (g.getName().equals(group.getName())) {
                return true;

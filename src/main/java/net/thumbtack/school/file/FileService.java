@@ -15,6 +15,9 @@ import java.util.List;
 public class FileService {
 
     public static void writeByteArrayToBinaryFile(String fileName, byte[] array) throws IOException {
+    	// REVU везде try-with-resource, и close не нужно
+    	// REVU просто вызовите следующий метод, передав ему new File(filename)
+    	// ангалогично для других пар методов
         FileOutputStream fos = new FileOutputStream(fileName);
         for (byte b : array) {
             fos.write(b);
@@ -109,6 +112,7 @@ public class FileService {
             }
         }
 
+        // REVU не надо его ловить, пусть идет выше, оно подкласс IOException
         catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -138,6 +142,8 @@ public class FileService {
     }
 
     public static void writeRectPictureToTextFileOneLine(File file, RectPicture rectPicture) throws IOException {
+    	// REVU укажите кодировку в new FileWriter
+    	// здесь и далее, а также в FileReader
         FileWriter writer = new FileWriter(file);
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         bufferedWriter.write(rectPicture.getTopLeft().getX() + " " + rectPicture.getTopLeft().getY() + " " +
@@ -157,6 +163,8 @@ public class FileService {
     public static void writeRectPictureToTextFileFiveLines(File file, RectPicture rectPicture) throws IOException {
         FileWriter fileWriter = new FileWriter(file, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        // REVU не надо самому добавлять "\r\n", так как это platform dependent
+        // у BufferedWriter есть метод newLine
         bufferedWriter.write(rectPicture.getTopLeft().getX() + "\r\n");
         bufferedWriter.write(rectPicture.getTopLeft().getY() + "\r\n");
         bufferedWriter.write(rectPicture.getBottomRight().getX() + "\r\n");
