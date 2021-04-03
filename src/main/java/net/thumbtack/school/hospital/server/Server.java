@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import net.thumbtack.school.hospital.model.Doctor;
 import net.thumbtack.school.hospital.model.Patient;
 
+import javax.print.Doc;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 public class Server {
     public static List<Doctor> doctors = new ArrayList<>();
     public static List<Patient> patients = new ArrayList<>();
-    public static String currentDoctor = "";
+    public static Doctor currentDoctor;
 
     public static boolean containsLogin(String login) {
         for (Doctor doctor : doctors) {
@@ -35,8 +36,17 @@ public class Server {
         return null;
     }
 
+    public static Doctor getDoctorByToken(String token) {
+        for (Doctor doctor : doctors) {
+            if (doctor.getToken().equals(token)) {
+                return doctor;
+            }
+        }
+        return null;
+    }
+
     public void startServer(String savedDataFileName) throws IOException {
-        loadPatients();
+
         BufferedReader bufferedFileReader = new BufferedReader(new FileReader(savedDataFileName));
         while (bufferedFileReader.ready()) {
             String[] arr = bufferedFileReader.readLine().split("\\|");
@@ -45,7 +55,9 @@ public class Server {
                         arr[2], arr[3], arr[4], arr[5]));
             }
         }
+        loadPatients();
         bufferedFileReader.close();
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("1: Регистрация");
         System.out.println("2: Вход");
@@ -78,8 +90,14 @@ public class Server {
         while (bufferedFileReader.ready()) {
             String[] arr = bufferedFileReader.readLine().split("\\|");
             if (arr.length >= 5) {
-                patients.add(new Patient(arr[0], arr[1],
-                        arr[2], arr[3], arr[4]));
+                Patient currentPatient = new Patient(arr[0], arr[1],
+                        arr[2], arr[3], getDoctorByToken(arr[6]), arr[4]);
+                patients.add(currentPatient);
+                for (Doctor doctor: doctors) {
+                    if (arr[6].equals(doctor.getToken())) {
+                        doctor.thisDoctorsPatients.add(currentPatient);
+                    }
+                }
             }
         }
         bufferedFileReader.close();
@@ -89,8 +107,10 @@ public class Server {
     public static void savePatient() {
         BufferedWriter bufferedFileWriter = new BufferedWriter(new FileWriter("patients.txt", true));
         Patient currentPatient  = patients.get(patients.size()-1);
-            bufferedFileWriter.write(String.join("|", currentPatient.getFirstName(), currentPatient.getLastName(),
-                    currentPatient.getLogin(), currentPatient.getPassword(),currentPatient.getDiagnosis(), getDoctorByLogin(currentDoctor).getLastName() + "\n"));
+            bufferedFileWriter.write(String.join("|", currentPatient.getFirstName(),
+                    currentPatient.getLastName(), currentPatient.getLogin(), currentPatient.getPassword(),
+                    currentPatient.getDiagnosis(), currentDoctor.getFirstName() + " " + currentDoctor.getLastName(),
+                    currentDoctor.getToken() +"\n"));
 
 
 //        for (Patient patient : patients) {

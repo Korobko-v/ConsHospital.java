@@ -1,8 +1,10 @@
 package net.thumbtack.school.hospital.model;
 import lombok.Getter;
 import lombok.Setter;
+import net.thumbtack.school.hospital.server.Server;
 import net.thumbtack.school.hospital.service.UserService;
 
+import javax.print.Doc;
 import java.util.ArrayList;
 
 @Getter
@@ -12,9 +14,10 @@ public class Patient extends User implements UserService {
     public ArrayList<Prescription> prescriptions;
     public Doctor doctor;
 
-    public Patient(String firstName, String lastName, String login, String password, String diagnosis) {
+    public Patient(String firstName, String lastName, String login, String password, Doctor doctor, String diagnosis) {
         super(firstName, lastName, login, password);
         this.diagnosis = diagnosis;
+        setDoctor(doctor);
     }
 
     @Override
