@@ -1,27 +1,29 @@
-package net.thumbtack.school.hospital.server;
+package net.thumbtack.school.hospital.model;
 
 import com.google.gson.Gson;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.SneakyThrows;
+import net.thumbtack.school.hospital.server.Server;
+import net.thumbtack.school.hospital.service.UserService;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.UUID;
 
 @Getter
-@AllArgsConstructor
-public class Doctor {
-        public final String firstName;
-        public final String lastName;
+public class Doctor extends User implements UserService {
         public final String speciality;
-        private final String login;
-        private final String password;
         public final String token;
 
+    public Doctor(String firstName, String lastName, String login, String password, String speciality, String token) {
+        super(firstName, lastName, login, password);
+        this.speciality = speciality;
+        this.token = token;
+    }
 
-
-        public static String signUp() throws IOException, NullPointerException {
+    @SneakyThrows
+    @Override
+    public String signUp() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("Введите имя: ");
@@ -30,8 +32,6 @@ public class Doctor {
             System.out.println("Введите фамилию: ");
             String thisLastName = reader.readLine();
 
-            System.out.println("Введите специальность: ");
-            String thisSpeciality = reader.readLine();
 
             System.out.println("Введите логин: ");
             String thisLogin = reader.readLine();
@@ -44,9 +44,12 @@ public class Doctor {
             System.out.println("Введите пароль: ");
             String thisPassword = reader.readLine();
 
+        System.out.println("Введите специальность: ");
+        String thisSpeciality = reader.readLine();
+
             String thisToken = UUID.randomUUID().toString();
 
-            Server.doctors.add(new Doctor(thisFirstName, thisLastName, thisSpeciality, thisLogin, thisPassword, thisToken));
+            Server.doctors.add(new Doctor(thisFirstName, thisLastName, thisLogin, thisPassword, thisSpeciality, thisToken));
             System.out.println("Пользователь зарегистрирован.");
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход");
@@ -59,10 +62,13 @@ public class Doctor {
                 logIn();
             }
             Gson gson = new Gson();
-            return gson.toJson(String.join("|", thisFirstName, thisLastName, thisSpeciality,
-                    thisLogin, thisPassword, thisToken));
+            return gson.toJson(String.join("|", thisFirstName, thisLastName,
+                    thisLogin, thisPassword, thisSpeciality, thisToken));
         }
-        public static void logIn() throws IOException {
+
+        @SneakyThrows
+        @Override
+        public void logIn() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Введите логин: ");
             String thisLogin = reader.readLine();
@@ -70,15 +76,17 @@ public class Doctor {
                 System.out.println("Неверный логин");
                 logIn();
             }
+            Server.currentDoctor = thisLogin;
             System.out.println("Введите пароль: ");
             String thisPassword = reader.readLine();
-            if (!Server.getDoctorByLogin(thisLogin).password.equals(thisPassword)) {
+            if (!Server.getDoctorByLogin(thisLogin).getPassword().equals(thisPassword)) {
                 System.out.println("Неверный пароль");
                 logIn();
             }
             System.out.println("Вход выполнен");
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход");
+            System.out.println("3: Зарегистрировать нового пациента");
             System.out.println("Другая клавиша: Выход");
             String s = reader.readLine();
             if (s.equals("1")) {
@@ -87,20 +95,27 @@ public class Doctor {
             if (s.equals("2")) {
                 logIn();
             }
+            if (s.equals("3")) {
+                registerPatient();
+            }
         }
 
-        public void registerPatient() throws IOException {
+        @SneakyThrows
+        public void registerPatient() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Введите имя пациента: ");
             String firstName = reader.readLine();
             System.out.println("Введите фамилию пациента: ");
             String lastName = reader.readLine();
-            System.out.println("Введите диагноз: ");
-            String diagnosis = reader.readLine();
             System.out.println("Введите логин пациента: ");
             String login = reader.readLine();
             System.out.println("Введите пароль пациента: ");
             String password = reader.readLine();
+            System.out.println("Введите диагноз: ");
+            String diagnosis = reader.readLine();
+
+            Server.patients.add(new Patient(firstName, lastName, login, password, diagnosis));
+            Server.savePatient();
         }
 
 

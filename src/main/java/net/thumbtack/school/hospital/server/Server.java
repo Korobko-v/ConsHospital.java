@@ -1,11 +1,17 @@
 package net.thumbtack.school.hospital.server;
 
+import lombok.SneakyThrows;
+import net.thumbtack.school.hospital.model.Doctor;
+import net.thumbtack.school.hospital.model.Patient;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
     public static List<Doctor> doctors = new ArrayList<>();
+    public static List<Patient> patients = new ArrayList<>();
+    public static String currentDoctor = "";
 
     public static boolean containsLogin(String login) {
         for (Doctor doctor : doctors) {
@@ -30,6 +36,7 @@ public class Server {
     }
 
     public void startServer(String savedDataFileName) throws IOException {
+        loadPatients();
         BufferedReader bufferedFileReader = new BufferedReader(new FileReader(savedDataFileName));
         while (bufferedFileReader.ready()) {
             String[] arr = bufferedFileReader.readLine().split("\\|");
@@ -45,10 +52,10 @@ public class Server {
         System.out.println("Другая клавиша: Выход");
         String s = reader.readLine();
         if (s.equals("1")) {
-            Doctor.signUp();
+            doctors.get(0).signUp();
         }
         if (s.equals("2")) {
-            Doctor.logIn();
+            doctors.get(0).logIn();
         }
         else {
             stopServer(savedDataFileName);
@@ -58,9 +65,38 @@ public class Server {
     public void stopServer(String savedDataFileName) throws IOException {
         BufferedWriter bufferedFileWriter = new BufferedWriter(new FileWriter(savedDataFileName));
         for (Doctor doctor : doctors) {
-            bufferedFileWriter.write(String.join("|", doctor.getFirstName(), doctor.getLastName(), doctor.getSpeciality(),
-                    doctor.getLogin(), doctor.getPassword(), doctor.getToken()) + "\n");
+            bufferedFileWriter.write(String.join("|", doctor.getFirstName(), doctor.getLastName(),
+                    doctor.getLogin(), doctor.getPassword(),doctor.getSpeciality(), doctor.getToken()) + "\n");
         }
+        bufferedFileWriter.close();
+//        savePatients();
+    }
+
+    @SneakyThrows
+    public void loadPatients() {
+        BufferedReader bufferedFileReader = new BufferedReader(new FileReader("patients.txt"));
+        while (bufferedFileReader.ready()) {
+            String[] arr = bufferedFileReader.readLine().split("\\|");
+            if (arr.length >= 5) {
+                patients.add(new Patient(arr[0], arr[1],
+                        arr[2], arr[3], arr[4]));
+            }
+        }
+        bufferedFileReader.close();
+    }
+
+    @SneakyThrows
+    public static void savePatient() {
+        BufferedWriter bufferedFileWriter = new BufferedWriter(new FileWriter("patients.txt", true));
+        Patient currentPatient  = patients.get(patients.size()-1);
+            bufferedFileWriter.write(String.join("|", currentPatient.getFirstName(), currentPatient.getLastName(),
+                    currentPatient.getLogin(), currentPatient.getPassword(),currentPatient.getDiagnosis(), getDoctorByLogin(currentDoctor).getLastName() + "\n"));
+
+
+//        for (Patient patient : patients) {
+//            bufferedFileWriter.write(String.join("|", patient.getFirstName(), patient.getLastName(),
+//                    patient.getLogin(), patient.getPassword(),patient.getDiagnosis(), getDoctorByLogin(currentDoctor).getLastName() + "\n"));
+//        }
         bufferedFileWriter.close();
     }
 }

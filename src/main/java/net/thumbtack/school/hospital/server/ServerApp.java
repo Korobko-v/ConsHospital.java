@@ -5,14 +5,18 @@ import java.io.IOException;
 
 public class ServerApp {
     public static void main(String[] args) throws IOException {
-        File file = new File("file.txt");
+        File doctorFile = new File("file.txt");
+        File patientFile = new File("patients.txt");
 
-        if (!file.exists()) {
-            file.createNewFile();
+        if (!doctorFile.exists()) {
+            doctorFile.createNewFile();
+        }
+        if (!patientFile.exists()) {
+            patientFile.createNewFile();
         }
 
         Server server = new Server();
-        server.startServer(file.getName());
-        server.stopServer(file.getName());
+        server.startServer(doctorFile.getName());
+        server.stopServer(doctorFile.getName());
     }
 }

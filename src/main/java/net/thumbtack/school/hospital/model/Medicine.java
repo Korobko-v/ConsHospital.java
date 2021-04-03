@@ -1,4 +1,4 @@
-package net.thumbtack.school.hospital.server;
+package net.thumbtack.school.hospital.model;
 
 import lombok.AllArgsConstructor;
 
