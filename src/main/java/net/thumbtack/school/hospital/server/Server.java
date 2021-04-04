@@ -92,7 +92,9 @@ public class Server {
             if (arr.length >= 5) {
                 Patient currentPatient = new Patient(arr[0], arr[1],
                         arr[2], arr[3], getDoctorByToken(arr[6]), arr[4]);
+                currentPatient.setDoctor(getDoctorByToken(arr[6]));
                 patients.add(currentPatient);
+
                 for (Doctor doctor: doctors) {
                     if (arr[6].equals(doctor.getToken())) {
                         doctor.thisDoctorsPatients.add(currentPatient);
@@ -112,11 +114,20 @@ public class Server {
                     currentPatient.getDiagnosis(), currentDoctor.getFirstName() + " " + currentDoctor.getLastName(),
                     currentDoctor.getToken() +"\n"));
 
-
-//        for (Patient patient : patients) {
-//            bufferedFileWriter.write(String.join("|", patient.getFirstName(), patient.getLastName(),
-//                    patient.getLogin(), patient.getPassword(),patient.getDiagnosis(), getDoctorByLogin(currentDoctor).getLastName() + "\n"));
-//        }
         bufferedFileWriter.close();
     }
+
+    @SneakyThrows
+    public static void updatePatients() {
+        BufferedWriter bufferedFileWriter = new BufferedWriter(new FileWriter("patients.txt"));
+        for (Patient patient : patients) {
+            bufferedFileWriter.write(String.join("|", patient.getFirstName(),
+                    patient.getLastName(), patient.getLogin(), patient.getPassword(),
+                    patient.getDiagnosis(), patient.getDoctor().getFirstName() + " " + patient.getDoctor().getLastName(),
+                    patient.getDoctor().getToken() + "\n"));
+        }
+        bufferedFileWriter.close();
+    }
+
+
 }

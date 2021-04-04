@@ -2,19 +2,20 @@ package net.thumbtack.school.hospital.model;
 
 import com.google.gson.Gson;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import net.thumbtack.school.hospital.server.Server;
 import net.thumbtack.school.hospital.service.UserService;
 
-import javax.print.Doc;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Getter
+@Setter
 public class Doctor extends User implements UserService {
         public final String speciality;
         public final String token;
@@ -53,9 +54,11 @@ public class Doctor extends User implements UserService {
         String thisSpeciality = reader.readLine();
 
             String thisToken = UUID.randomUUID().toString();
+            Doctor thisDoc = new Doctor(thisFirstName, thisLastName, thisLogin, thisPassword, thisSpeciality, thisToken);
+            thisDoc.setThisDoctorsPatients(new ArrayList<>());
+            Server.doctors.add(thisDoc);
 
-            Server.doctors.add(new Doctor(thisFirstName, thisLastName, thisLogin, thisPassword, thisSpeciality, thisToken));
-            Server.currentDoctor = Server.getDoctorByLogin(thisLogin);
+            Server.currentDoctor = Server.getDoctorByToken(thisToken);
             System.out.println("Пользователь зарегистрирован.");
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход");
@@ -90,28 +93,42 @@ public class Doctor extends User implements UserService {
                 logIn();
             }
             Server.currentDoctor = Server.getDoctorByLogin(thisLogin);
+            doctorsMenu();
+        }
 
-            System.out.println("Вход выполнен");
+        @SneakyThrows
+        public void doctorsMenu() {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println(Server.currentDoctor.getFirstName() + " " + Server.currentDoctor.getLastName());
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход с другого аккаунта");
             System.out.println("3: Зарегистрировать нового пациента");
             System.out.println("4: Просмотреть список моих пациентов");
+            System.out.println("5: Удалить аккаунт");
             System.out.println("Другая клавиша: Выход");
             String s = reader.readLine();
+
             switch (s) {
                 case "1" : signUp();
                 case "2" : logIn();
-                case "3" : registerPatient();
-                case "4" :
-                    for (Patient patient : Server.currentDoctor.thisDoctorsPatients) {
-                        System.out.println(patient.getFirstName() + " " + patient.getLastName()
-                        + " " + patient.getDiagnosis());
-                    }
-//                Server.patients.
-//                        stream()
-//                        .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
-//                        .forEach(System.out::println);
+                case "3" : registerPatient(); doctorsMenu();
+                //nullpointer после регистрации нового врача
+                case "4" : viewCurrentDoctorsPatients(Server.currentDoctor); doctorsMenu();
+                //работает некорректно
+                case "5" : removeDoctor();
+                System.out.println("=================================");
+
             }
+
+        }
+
+
+        public void viewCurrentDoctorsPatients(Doctor doctor) {
+            Server.patients.
+                    stream()
+                    .filter(patient -> patient.getDoctor().equals(doctor))
+                    .forEach(patient -> System.out.println(patient.getFirstName() + " " + patient.getLastName()
+                            + "|" + patient.getDiagnosis()));
         }
 
 
@@ -129,9 +146,29 @@ public class Doctor extends User implements UserService {
             System.out.println("Введите диагноз: ");
             String diagnosis = reader.readLine();
 
-            Server.patients.add(new Patient(firstName, lastName, login, password, Server.currentDoctor, diagnosis));
-
+            Patient current = new Patient(firstName, lastName, login, password, Server.currentDoctor, diagnosis);
+            current.setDoctor(Server.currentDoctor);
+            Server.patients.add(current);
+            Server.currentDoctor.thisDoctorsPatients.add(current);
             Server.savePatient();
+        }
+
+        public void removeDoctor() {
+        String speciality = Server.currentDoctor.getSpeciality();
+        Server.doctors.remove(Server.currentDoctor);
+            for (Patient patient : thisDoctorsPatients) {
+                for (Doctor doctor : Server.doctors) {
+                    if (speciality.equals(doctor.getSpeciality())) {
+                    patient.setDoctor(doctor);
+                    break;
+                    }
+                }
+                    if (patient.getDoctor() == null) {
+                    patient.setDoctor(Server.doctors.get(new Random().nextInt(Server.doctors.size() - 1)));
+                    }
+            }
+
+            Server.updatePatients();
         }
 
 
