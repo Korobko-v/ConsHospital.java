@@ -108,27 +108,27 @@ public class Doctor extends User implements UserService {
             System.out.println("Другая клавиша: Выход");
             String s = reader.readLine();
 
+
             switch (s) {
                 case "1" : signUp();
                 case "2" : logIn();
                 case "3" : registerPatient(); doctorsMenu();
-                //nullpointer после регистрации нового врача
                 case "4" : viewCurrentDoctorsPatients(Server.currentDoctor); doctorsMenu();
-                //работает некорректно
                 case "5" : removeDoctor();
-                System.out.println("=================================");
-
             }
 
         }
 
 
         public void viewCurrentDoctorsPatients(Doctor doctor) {
+            System.out.println("Мои пациенты: ");
             Server.patients.
                     stream()
                     .filter(patient -> patient.getDoctor().equals(doctor))
                     .forEach(patient -> System.out.println(patient.getFirstName() + " " + patient.getLastName()
                             + "|" + patient.getDiagnosis()));
+
+            System.out.println("=================================");
         }
 
 
@@ -155,22 +155,20 @@ public class Doctor extends User implements UserService {
 
         public void removeDoctor() {
         String speciality = Server.currentDoctor.getSpeciality();
+        Doctor check = Server.currentDoctor;
         Server.doctors.remove(Server.currentDoctor);
-            for (Patient patient : thisDoctorsPatients) {
-                for (Doctor doctor : Server.doctors) {
-                    if (speciality.equals(doctor.getSpeciality())) {
+            Server.patients.stream().filter(patient -> patient.getDoctor().equals(check))
+        .forEach(patient -> { for (Doctor doctor : Server.doctors) {
+                if (speciality.equals(doctor.getSpeciality())) {
                     patient.setDoctor(doctor);
                     break;
-                    }
                 }
-                    if (patient.getDoctor() == null) {
-                    patient.setDoctor(Server.doctors.get(new Random().nextInt(Server.doctors.size() - 1)));
-                    }
             }
+            if (patient.getDoctor() == null) {
+                patient.setDoctor(Server.doctors.get(new Random().nextInt(Server.doctors.size() - 1)));
+            }});
 
             Server.updatePatients();
+            System.out.println("Аккаунт удалён");
         }
-
-
-
 }
