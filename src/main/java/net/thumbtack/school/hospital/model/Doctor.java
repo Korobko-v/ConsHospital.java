@@ -63,6 +63,7 @@ public class Doctor extends User implements UserService {
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход");
             System.out.println("Другая клавиша: Выход");
+
             String s = reader.readLine();
             if (s.equals("1")) {
                 signUp();
@@ -110,11 +111,20 @@ public class Doctor extends User implements UserService {
 
 
             switch (s) {
-                case "1" : signUp();
-                case "2" : logIn();
-                case "3" : registerPatient(); doctorsMenu();
-                case "4" : viewCurrentDoctorsPatients(Server.currentDoctor); doctorsMenu();
-                case "5" : removeDoctor();
+                case "1":
+                    signUp();
+                    break;
+                case "2":
+                    logIn();
+                    break;
+                case "3":
+                    registerPatient();
+                    break;
+                case "4":
+                    viewCurrentDoctorsPatients(Server.currentDoctor);
+                    break;
+                case "5":
+                    removeDoctor();
             }
 
         }
@@ -129,6 +139,7 @@ public class Doctor extends User implements UserService {
                             + "|" + patient.getDiagnosis()));
 
             System.out.println("=================================");
+            doctorsMenu();
         }
 
 
@@ -151,11 +162,13 @@ public class Doctor extends User implements UserService {
             Server.patients.add(current);
             Server.currentDoctor.thisDoctorsPatients.add(current);
             Server.savePatient();
+            doctorsMenu();
         }
 
         public void removeDoctor() {
         String speciality = Server.currentDoctor.getSpeciality();
         Doctor check = Server.currentDoctor;
+
         Server.doctors.remove(Server.currentDoctor);
             Server.patients.stream().filter(patient -> patient.getDoctor().equals(check))
         .forEach(patient -> { for (Doctor doctor : Server.doctors) {
@@ -164,11 +177,12 @@ public class Doctor extends User implements UserService {
                     break;
                 }
             }
-            if (patient.getDoctor() == null) {
+            if (patient.getDoctor().equals(check)) {
                 patient.setDoctor(Server.doctors.get(new Random().nextInt(Server.doctors.size() - 1)));
             }});
 
             Server.updatePatients();
+
             System.out.println("Аккаунт удалён");
         }
 }

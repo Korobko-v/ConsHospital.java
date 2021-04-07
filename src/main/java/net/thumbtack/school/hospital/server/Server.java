@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import net.thumbtack.school.hospital.model.Doctor;
 import net.thumbtack.school.hospital.model.Patient;
 
-import javax.print.Doc;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +62,7 @@ public class Server {
         System.out.println("2: Вход");
         System.out.println("Другая клавиша: Выход");
         String s = reader.readLine();
+
         if (s.equals("1")) {
             doctors.get(0).signUp();
         }
