@@ -7,12 +7,8 @@ import lombok.SneakyThrows;
 import net.thumbtack.school.hospital.server.Server;
 import net.thumbtack.school.hospital.service.UserService;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 @Getter
 @Setter
@@ -20,15 +16,17 @@ public class Doctor extends User implements UserService {
         public final String speciality;
         public final String token;
         public List<Patient> thisDoctorsPatients = new ArrayList<>();
+    private String password;
 
     public Doctor(String firstName, String lastName, String login, String password, String speciality, String token) {
-        super(firstName, lastName, login, password);
+        super(firstName, lastName, login);
         this.speciality = speciality;
         this.token = token;
+        this.password = password;
     }
 
     @SneakyThrows
-    @Override
+
     public String signUp() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -104,8 +102,9 @@ public class Doctor extends User implements UserService {
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход с другого аккаунта");
             System.out.println("3: Зарегистрировать нового пациента");
-            System.out.println("4: Просмотреть список моих пациентов");
-            System.out.println("5: Удалить аккаунт");
+            System.out.println("4: Мои пациенты");
+            System.out.println("5: Добавить назначение");
+            System.out.println("6: Удалить аккаунт");
             System.out.println("Другая клавиша: Выход");
             String s = reader.readLine();
 
@@ -124,6 +123,9 @@ public class Doctor extends User implements UserService {
                     viewCurrentDoctorsPatients(Server.currentDoctor);
                     break;
                 case "5":
+                    addPrescription();
+                    break;
+                case "6":
                     removeDoctor();
             }
 
@@ -142,7 +144,120 @@ public class Doctor extends User implements UserService {
             doctorsMenu();
         }
 
+        @SneakyThrows
+        public void addPrescription() {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Введите логин пациента");
+            String patientsLogin = reader.readLine();
+            Server.currentPatient = Server.getPatientByLogin(patientsLogin);
+            Patient patient = Server.currentPatient;
 
+            if (patient.getDoctor().equals(Server.currentDoctor)) {
+
+                System.out.println("1. Назначить лекарства");
+                System.out.println("2. Назначить процедуры");
+                String s = reader.readLine();
+
+                if (s.equals("1")) {
+                    while (true) {
+                        try {
+                            System.out.println("Введите название лекарства: ");
+                            String medName = reader.readLine();
+                            if (medName.isBlank()) {
+                                break;
+                            }
+                            System.out.println("Введите частоту приёма(в день)");
+                            String sFreq = reader.readLine();
+                            Integer frequency = Integer.parseInt(sFreq);
+                            if (frequency < 1) {
+                                throw new RuntimeException("Неверное значение");
+                            }
+                            patient.medicines.put(medName, frequency);
+
+                        } catch (NumberFormatException e) {
+                            System.out.println("Невеерное значение");
+                            addPrescription();
+                        }
+                    }
+                }
+                if (s.equals("2")) {
+                    while (true) {
+                        System.out.println("Введите название процедуры: ");
+                        String prName = reader.readLine();
+                        if (prName.isBlank()) {
+                            break;
+                        }
+                        System.out.println("Введите дни для процедур");
+                        TreeSet<Day> days = new TreeSet<>();
+                        while (true) {
+                            try {
+                                String sDay = reader.readLine();
+                                if (sDay.isBlank()) {
+                                    break;
+                                }
+                                Day day = Day.valueOf(reader.readLine());
+                                days.add(day);
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Неверные данные");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        patient.procedures.put(prName, days);
+                    }
+                }
+                writePrescriptions();
+            }
+            else {
+                System.out.println("Чужой пациент");
+                addPrescription();
+            }
+        }
+
+        @SneakyThrows
+        public void writePrescriptions() {
+            Patient patient = Server.currentPatient;
+            File procedures = new File("procedures.txt");
+            if (!procedures.exists()) {
+                procedures.createNewFile();
+            }
+            BufferedWriter proceduresWriter = new BufferedWriter(new FileWriter(procedures.getName(), true));
+            proceduresWriter.write(patient.getFirstName() + " " + patient.getLastName());
+
+            File medicines = new File("medicines.txt");
+            if (!medicines.exists()) {
+                medicines.createNewFile();
+            }
+
+            BufferedWriter medicinesWriter = new BufferedWriter(new FileWriter(medicines.getName(), true));
+            String strDays = "";
+            medicinesWriter.write(patient.getFirstName() + " " + patient.getLastName());
+
+                if (!patient.getProcedures().isEmpty()) {
+
+                    for (Map.Entry<String, TreeSet<Day>> entry : patient.getProcedures().entrySet()) {
+                        proceduresWriter.write("|" + entry.getKey() + "(");
+                        for (Day day : entry.getValue()) {
+                            strDays += day + ",";
+                        }
+                        proceduresWriter.write(strDays.substring(0, strDays.length() - 1));
+                        proceduresWriter.write(")");
+                    }
+                    proceduresWriter.write("\n");
+                }
+
+                if (!patient.getMedicines().isEmpty()) {
+
+                    for (Map.Entry<String, Integer> entry : patient.getMedicines().entrySet()) {
+                        medicinesWriter.write("|" + entry.getKey() + "(" + entry.getValue() + ")" );
+                    }
+
+                    medicinesWriter.write("\n");
+                }
+
+            proceduresWriter.close();
+            medicinesWriter.close();
+        }
         @SneakyThrows
         public void registerPatient() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

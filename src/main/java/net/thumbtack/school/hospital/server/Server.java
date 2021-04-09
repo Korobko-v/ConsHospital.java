@@ -12,6 +12,7 @@ public class Server {
     public static List<Doctor> doctors = new ArrayList<>();
     public static List<Patient> patients = new ArrayList<>();
     public static Doctor currentDoctor;
+    public static Patient currentPatient;
 
     public static boolean containsLogin(String login) {
         for (Doctor doctor : doctors) {
@@ -26,10 +27,32 @@ public class Server {
         return false;
     }
 
+    public static boolean containsPatientsLogin(String login) {
+        for (Patient patient: patients) {
+            try {
+                if (patient.getLogin().equals(login)) {
+                    return true;
+                }
+            } catch (NullPointerException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     public static Doctor getDoctorByLogin(String login) {
         for (Doctor doctor : doctors) {
             if (doctor.getLogin().equals(login)) {
                 return doctor;
+            }
+        }
+        return null;
+    }
+
+    public static Patient getPatientByLogin(String login) {
+        for (Patient patient: patients) {
+            if (patient.getLogin().equals(login)) {
+                return patient;
             }
         }
         return null;
@@ -59,7 +82,8 @@ public class Server {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("1: Регистрация");
-        System.out.println("2: Вход");
+        System.out.println("2: Вход(Доктор)");
+        System.out.println("3: Вход(Пациент)");
         System.out.println("Другая клавиша: Выход");
         String s = reader.readLine();
 
@@ -68,6 +92,9 @@ public class Server {
         }
         if (s.equals("2")) {
             doctors.get(0).logIn();
+        }
+        if (s.equals("3")) {
+            patients.get(0).logIn();
         }
         else {
             stopServer(savedDataFileName);

@@ -9,6 +9,6 @@ public abstract class User {
     public final String firstName;
     public final String lastName;
     private final String login;
-    private String password;
+
 
 }
