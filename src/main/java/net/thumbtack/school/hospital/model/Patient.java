@@ -99,7 +99,7 @@ public class Patient extends User implements UserService {
     public void viewCurrentPatientsDoctor() {
         System.out.println("Мой доктор:");
         System.out.println(Server.currentPatient.getDoctor().getFirstName() + " "
-                + Server.currentPatient.getDoctor().getLastName());
+                + Server.currentPatient.getDoctor().getLastName() + " " + Server.currentPatient.getDoctor().getSpeciality());
         System.out.println("==============================");
     }
 
