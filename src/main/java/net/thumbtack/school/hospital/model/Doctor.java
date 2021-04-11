@@ -16,7 +16,7 @@ public class Doctor extends User implements UserService {
         public final String speciality;
         public final String token;
         public List<Patient> thisDoctorsPatients = new ArrayList<>();
-    private String password;
+    private final String password;
 
     public Doctor(String firstName, String lastName, String login, String password, String speciality, String token) {
         super(firstName, lastName, login);
@@ -104,7 +104,8 @@ public class Doctor extends User implements UserService {
             System.out.println("3: Зарегистрировать нового пациента");
             System.out.println("4: Мои пациенты");
             System.out.println("5: Добавить назначение");
-            System.out.println("6: Удалить аккаунт");
+            System.out.println("6: Отменить назначение");
+            System.out.println("7: Удалить аккаунт");
             System.out.println("Другая клавиша: Выход");
             String s = reader.readLine();
 
@@ -120,29 +121,77 @@ public class Doctor extends User implements UserService {
                     registerPatient();
                     break;
                 case "4":
-                    viewCurrentDoctorsPatients(Server.currentDoctor);
+                    System.out.println("1: Все пациенты");
+                    System.out.println("2: Выбрать диагноз");
+                    System.out.println("3: Выбрать назначение");
+                    String s1 = reader.readLine();
+                    switch (s1) {
+                        case "1":
+                            viewMyPatients();
+                            break;
+                        case "2":
+                            System.out.println("Введите диагноз: ");
+                            String diagnosis = reader.readLine();
+                            viewMyPatients(diagnosis);
+                            break;
+                        case "3":
+                            System.out.println("Введите назначение: ");
+                            String prescription = reader.readLine();
+                            viewMyPatientsByPrescription(prescription);
+                            break;
+                    }
                     break;
                 case "5":
                     addPrescription();
                     break;
                 case "6":
+                    cancelPrescription();
+                    break;
+                case "7":
                     removeDoctor();
             }
 
         }
 
 
-        public void viewCurrentDoctorsPatients(Doctor doctor) {
+        public void viewMyPatients() {
             System.out.println("Мои пациенты: ");
             Server.patients.
                     stream()
-                    .filter(patient -> patient.getDoctor().equals(doctor))
-                    .forEach(patient -> System.out.println(patient.getFirstName() + " " + patient.getLastName()
+                    .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
+                    .forEach(patient -> System.out.println(patient.getLogin() + "|"
+                            + patient.getFirstName() + " " + patient.getLastName()
                             + "|" + patient.getDiagnosis()));
 
             System.out.println("=================================");
             doctorsMenu();
         }
+
+    public void viewMyPatients(String diagnosis) {
+        System.out.println("Мои пациенты с диагнозом " + diagnosis);
+        Server.patients.
+                stream()
+                .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
+                .filter(patient -> patient.getDiagnosis().equals(diagnosis))
+                .forEach(patient -> System.out.println(patient.getLogin() + "|"
+                        + patient.getFirstName() + " " + patient.getLastName()));
+
+        System.out.println("=================================");
+        doctorsMenu();
+    }
+
+    public void viewMyPatientsByPrescription(String prescription) {
+        System.out.println("Мои пациенты с назначением: " + prescription);
+        Server.patients.
+                stream()
+                .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
+                .filter(patient -> patient.getProcedures().containsKey(prescription)|| patient.getMedicines().containsKey(prescription))
+                .forEach(patient -> System.out.println(patient.getLogin() + "|"
+                        + patient.getFirstName() + " " + patient.getLastName()));
+
+        System.out.println("=================================");
+        doctorsMenu();
+    }
 
         @SneakyThrows
         public void addPrescription() {
@@ -179,6 +228,7 @@ public class Doctor extends User implements UserService {
                             addPrescription();
                         }
                     }
+                    writeMedicines();
                 }
                 if (s.equals("2")) {
                     while (true) {
@@ -187,26 +237,48 @@ public class Doctor extends User implements UserService {
                         if (prName.isBlank()) {
                             break;
                         }
+
                         System.out.println("Введите дни для процедур");
-                        TreeSet<Day> days = new TreeSet<>();
+
+                        TreeSet<Day> days = new TreeSet<>((o1, o2) -> o1.getOrder().compareTo(o2.getOrder()));
+
                         while (true) {
+
                             try {
                                 String sDay = reader.readLine();
                                 if (sDay.isBlank()) {
                                     break;
                                 }
-                                Day day = Day.valueOf(reader.readLine());
-                                days.add(day);
-                            } catch (IllegalArgumentException e) {
+
+                                for (Day day : Day.values()) {
+                                    if (day.getDay().equals(sDay)) {
+                                        days.add(day);
+                                        break;
+                                    }
+                                }
+
+                            }
+                            catch (IllegalArgumentException e) {
                                 System.out.println("Неверные данные");
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             }
                         }
                         patient.procedures.put(prName, days);
                     }
+                    writeProcedures();
                 }
-                writePrescriptions();
+                System.out.println("1: Добавить назначение");
+                System.out.println("2: Вернуться в меню");
+                System.out.println("Другая клавиша: Выход");
+
+                String str = reader.readLine();
+                switch (s) {
+                    case "1":
+                        addPrescription();
+                        break;
+                    case "2":
+                        doctorsMenu();
+                        break;
+                }
             }
             else {
                 System.out.println("Чужой пациент");
@@ -215,49 +287,57 @@ public class Doctor extends User implements UserService {
         }
 
         @SneakyThrows
-        public void writePrescriptions() {
-            Patient patient = Server.currentPatient;
-            File procedures = new File("procedures.txt");
-            if (!procedures.exists()) {
-                procedures.createNewFile();
-            }
-            BufferedWriter proceduresWriter = new BufferedWriter(new FileWriter(procedures.getName(), true));
-            proceduresWriter.write(patient.getFirstName() + " " + patient.getLastName());
-
+        public void writeMedicines() {
             File medicines = new File("medicines.txt");
+
             if (!medicines.exists()) {
                 medicines.createNewFile();
             }
 
-            BufferedWriter medicinesWriter = new BufferedWriter(new FileWriter(medicines.getName(), true));
-            String strDays = "";
-            medicinesWriter.write(patient.getFirstName() + " " + patient.getLastName());
+            BufferedWriter medicinesWriter = new BufferedWriter(new FileWriter(medicines.getName(), false));
+            for (Patient patient : Server.patients) {
+                if (!patient.getMedicines().isEmpty()) {
+                    for (Map.Entry<String, Integer> entry : patient.getMedicines().entrySet()) {
+                        medicinesWriter.write(patient.getLogin());
+                        medicinesWriter.write("|" + entry.getKey() + "-" + entry.getValue());
+                        medicinesWriter.write("\n");
+                    }
+                }
+            }
+            medicinesWriter.close();
+        }
 
+        @SneakyThrows
+        public void writeProcedures() {
+            File procedures = new File("procedures.txt");
+
+            if (!procedures.exists()) {
+                procedures.createNewFile();
+            }
+            BufferedWriter proceduresWriter = new BufferedWriter(new FileWriter(procedures, false));
+
+            for (Patient patient : Server.patients) {
                 if (!patient.getProcedures().isEmpty()) {
 
                     for (Map.Entry<String, TreeSet<Day>> entry : patient.getProcedures().entrySet()) {
-                        proceduresWriter.write("|" + entry.getKey() + "(");
+                        String strDays = "";
+                        proceduresWriter.write(patient.getLogin());
+                        proceduresWriter.write("|" + entry.getKey() + "-");
                         for (Day day : entry.getValue()) {
-                            strDays += day + ",";
+                            strDays += day.getDay() + ",";
                         }
-                        proceduresWriter.write(strDays.substring(0, strDays.length() - 1));
-                        proceduresWriter.write(")");
+                        if (strDays.length() > 1) {
+                            proceduresWriter.write(strDays.substring(0, strDays.length() - 1));
+                        }
+
+                        proceduresWriter.write("\n");
                     }
-                    proceduresWriter.write("\n");
                 }
-
-                if (!patient.getMedicines().isEmpty()) {
-
-                    for (Map.Entry<String, Integer> entry : patient.getMedicines().entrySet()) {
-                        medicinesWriter.write("|" + entry.getKey() + "(" + entry.getValue() + ")" );
-                    }
-
-                    medicinesWriter.write("\n");
-                }
-
+            }
             proceduresWriter.close();
-            medicinesWriter.close();
         }
+
+
         @SneakyThrows
         public void registerPatient() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -283,15 +363,17 @@ public class Doctor extends User implements UserService {
         public void removeDoctor() {
         String speciality = Server.currentDoctor.getSpeciality();
         Doctor check = Server.currentDoctor;
-
+        List<Doctor> newDocs = new ArrayList<>();
         Server.doctors.remove(Server.currentDoctor);
             Server.patients.stream().filter(patient -> patient.getDoctor().equals(check))
         .forEach(patient -> { for (Doctor doctor : Server.doctors) {
                 if (speciality.equals(doctor.getSpeciality())) {
-                    patient.setDoctor(doctor);
-                    break;
+                    newDocs.add(doctor);
                 }
             }
+
+            patient.setDoctor(newDocs.get(new Random().nextInt(newDocs.size())));
+
             if (patient.getDoctor().equals(check)) {
                 patient.setDoctor(Server.doctors.get(new Random().nextInt(Server.doctors.size() - 1)));
             }});
@@ -299,5 +381,31 @@ public class Doctor extends User implements UserService {
             Server.updatePatients();
 
             System.out.println("Аккаунт удалён");
+        }
+
+        @SneakyThrows
+        public void cancelPrescription() {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Введите логин пациента: ");
+            String login = reader.readLine();
+            Server.currentPatient = Server.getPatientByLogin(login);
+
+            System.out.println("1: Отменить лекарство");
+            System.out.println("2: Отменить процедуру");
+            String s = reader.readLine();
+
+            if (s.equals("1")) {
+                System.out.println("Введите название лекарства");
+                String med = reader.readLine();
+                Server.currentPatient.medicines.remove(med);
+                writeMedicines();
+            }
+            if (s.equals("2")) {
+                System.out.println("Введите название процедуры");
+                String procedure = reader.readLine();
+                Server.currentPatient.procedures.remove(procedure);
+                writeProcedures();
+            }
+            doctorsMenu();
         }
 }

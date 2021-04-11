@@ -5,13 +5,9 @@ import lombok.SneakyThrows;
 import net.thumbtack.school.hospital.server.Server;
 import net.thumbtack.school.hospital.service.UserService;
 
-import javax.print.Doc;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 @Getter
 @Setter
@@ -78,7 +74,7 @@ public class Patient extends User implements UserService {
                 patientsMenu();
                 break;
             case "2":
-
+                Server.currentPatient.viewMyPrescriptions();
                 break;
             case "3":
                 Server.doctors.get(0).logIn();
@@ -130,5 +126,20 @@ public class Patient extends User implements UserService {
         Server.updatePatients();
         System.out.println("Пациент удалён");
         System.out.println("==============================");
+    }
+
+    public void viewMyPrescriptions() {
+        System.out.println("Мои лекарства:");
+        for (Map.Entry<String, Integer> entry : getMedicines().entrySet()) {
+            System.out.println(entry.getKey() + "-" + entry.getValue());
+        }
+        System.out.println("==============================");
+        System.out.println("Мои процедуры:");
+        for (Map.Entry<String, TreeSet<Day>> entry : getProcedures().entrySet()) {
+            System.out.println(entry.getKey() + ": ");
+            for (Day day: entry.getValue()) {
+                System.out.println(day.getDay());
+            }
+        }
     }
 }

@@ -1,12 +1,14 @@
 package net.thumbtack.school.hospital.server;
 
 import lombok.SneakyThrows;
+import net.thumbtack.school.hospital.model.Day;
 import net.thumbtack.school.hospital.model.Doctor;
 import net.thumbtack.school.hospital.model.Patient;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class Server {
     public static List<Doctor> doctors = new ArrayList<>();
@@ -78,6 +80,8 @@ public class Server {
             }
         }
         loadPatients();
+        loadMedicines();
+        loadProcedures();
         bufferedFileReader.close();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -156,5 +160,56 @@ public class Server {
         bufferedFileWriter.close();
     }
 
+    @SneakyThrows
+    public static void loadProcedures() {
+        BufferedReader proceduresReader = new BufferedReader(new FileReader("procedures.txt"));
+        while (proceduresReader.ready()) {
+            String s = proceduresReader.readLine();
+            String[] patientAndProcedure = s.split("\\|");
+            if (patientAndProcedure.length > 1) {
+                String login = patientAndProcedure[0];
+                Patient patient = getPatientByLogin(login);
 
+                String[] procedureAndDays = patientAndProcedure[1].split("\\-");
+                if (procedureAndDays.length > 1) {
+                    String procedure = procedureAndDays[0];
+                    String[] days = procedureAndDays[1].split(",");
+
+                    TreeSet<Day> daySet = new TreeSet<>((o1, o2) -> o1.getOrder().compareTo(o2.getOrder()));
+                    for (String sDay : days) {
+                        for (Day day : Day.values()) {
+                            if (day.getDay().equals(sDay)) {
+                                daySet.add(day);
+                                break;
+                            }
+                        }
+                    }
+                    patient.getProcedures().put(procedure, daySet);
+                }
+            }
+        }
+        proceduresReader.close();
+    }
+
+    @SneakyThrows
+    public void loadMedicines() {
+        BufferedReader medicinesReader = new BufferedReader(new FileReader("medicines.txt"));
+        while (medicinesReader.ready()) {
+            String s = medicinesReader.readLine();
+            String[] patientAndMedicines = s.split("\\|");
+            String login = patientAndMedicines[0];
+            Patient patient = getPatientByLogin(login);
+            String[] meds = new String[patientAndMedicines.length - 1];
+            System.arraycopy(patientAndMedicines, 1, meds, 0, patientAndMedicines.length - 1);
+            for (String med : meds) {
+                String[] medsAndSeq = med.split("-");
+
+                if (medsAndSeq.length > 1) {
+                    String key = medsAndSeq[0];
+                    Integer value = Integer.parseInt(medsAndSeq[1]);
+                    patient.getMedicines().put(key,value);
+                }
+            }
+        }
+    }
 }
