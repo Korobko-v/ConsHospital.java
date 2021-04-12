@@ -11,10 +11,12 @@ import java.util.*;
 
 @Getter
 @Setter
+//REVU Patient наследник от UserService ??? Наверное, User ?
 public class Patient extends User implements UserService {
     public final String diagnosis;
     public Doctor doctor;
     private String password;
+    // REVU private
     Map<String, Integer> medicines;
     Map<String, TreeSet<Day>> procedures;
 

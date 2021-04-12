@@ -12,10 +12,16 @@ import java.util.*;
 
 @Getter
 @Setter
+// REVU Doctor наследник от UserService ??? Наверное, User ?
 public class Doctor extends User implements UserService {
         public final String speciality;
+        // REVU это поле не нужно. Только залогиненные пользователи имеют токен
+        // в БД долна быть структура , с помощью которой можно по токену найти User
+        // а тут не надо
         public final String token;
+        // REVU просто patients
         public List<Patient> thisDoctorsPatients = new ArrayList<>();
+        // REVU перенесите в User
     private final String password;
 
     public Doctor(String firstName, String lastName, String login, String password, String speciality, String token) {
