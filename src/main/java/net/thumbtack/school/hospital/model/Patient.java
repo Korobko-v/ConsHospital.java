@@ -1,7 +1,11 @@
 package net.thumbtack.school.hospital.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.jackson.Jacksonized;
 import net.thumbtack.school.hospital.server.Server;
 import net.thumbtack.school.hospital.service.UserService;
 
@@ -11,18 +15,29 @@ import java.util.*;
 
 @Getter
 @Setter
-//REVU Patient наследник от UserService ??? Наверное, User ?
-public class Patient extends User implements UserService {
-    public final String diagnosis;
+@JsonDeserialize(as = Patient.class)
+@Jacksonized
+public class Patient extends User {
+    @JsonProperty("diagnosis")
+    public String diagnosis;
+//   @JsonProperty("doctor")
+    @JsonIgnore
     public Doctor doctor;
+    @JsonProperty("password")
     private String password;
-    // REVU private
-    Map<String, Integer> medicines;
-    Map<String, TreeSet<Day>> procedures;
+    @JsonProperty("medicines")
+    private Map<String, Integer> medicines;
+    @JsonProperty("procedures")
+    private Map<String, TreeSet<Day>> procedures;
+
+
+    public Patient() {
+
+    }
 
 
     public Patient(String firstName, String lastName, String login, String password, Doctor doctor, String diagnosis) {
-        super(firstName, lastName, login);
+        super(firstName, lastName, login,password);
         this.diagnosis = diagnosis;
         this.password = password;
         setDoctor(doctor);
@@ -117,7 +132,7 @@ public class Patient extends User implements UserService {
         }
         else {
             Server.getPatientByLogin(Server.currentPatient.getLogin()).setPassword(newPassword);
-            Server.updatePatients();
+//            Server.updatePatients();
             System.out.println("Пароль успешно изменён");
             System.out.println("==============================");
         }
@@ -125,7 +140,7 @@ public class Patient extends User implements UserService {
 
     public void removePatient() {
         Server.patients.remove(Server.getPatientByLogin(Server.currentPatient.getLogin()));
-        Server.updatePatients();
+//        Server.updatePatients();
         System.out.println("Пациент удалён");
         System.out.println("==============================");
     }

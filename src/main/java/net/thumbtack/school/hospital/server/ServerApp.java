@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class ServerApp {
     public static void main(String[] args) throws IOException {
-        File doctorFile = new File("file.txt");
+        File doctorFile = new File("doctors.txt");
         File patientFile = new File("patients.txt");
 
         if (!doctorFile.exists()) {

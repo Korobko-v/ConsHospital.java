@@ -1,41 +1,52 @@
 package net.thumbtack.school.hospital.model;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.jackson.Jacksonized;
 import net.thumbtack.school.hospital.server.Server;
-import net.thumbtack.school.hospital.service.UserService;
 
 import java.io.*;
 import java.util.*;
 
 @Getter
 @Setter
-// REVU Doctor наследник от UserService ??? Наверное, User ?
-public class Doctor extends User implements UserService {
-        public final String speciality;
+@JsonDeserialize(as = Doctor.class)
+@Jacksonized
+public class Doctor extends User {
+
+        @JsonProperty("speciality")
+        public String speciality;
+
         // REVU это поле не нужно. Только залогиненные пользователи имеют токен
         // в БД долна быть структура , с помощью которой можно по токену найти User
         // а тут не надо
-        public final String token;
-        // REVU просто patients
-        public List<Patient> thisDoctorsPatients = new ArrayList<>();
-        // REVU перенесите в User
-    private final String password;
+//        @JsonProperty("token")
+//        public String token;
 
-    public Doctor(String firstName, String lastName, String login, String password, String speciality, String token) {
-        super(firstName, lastName, login);
-        this.speciality = speciality;
-        this.token = token;
-        this.password = password;
-    }
+        @JsonProperty("patients")
+        @JsonDeserialize(as = ArrayList.class)
+        public List<Patient> patients = new ArrayList<>();
+
+
+        public Doctor() {}
+
+
+        public Doctor(String firstName, String lastName, String login, String password, String speciality) {
+            super(firstName, lastName, login, password);
+            this.speciality = speciality;
+            this.patients = new ArrayList<>();
+        }
+
 
     @SneakyThrows
-
-    public String signUp() {
+    public static String signUp() {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
+            ObjectMapper objectMapper = new ObjectMapper();
             System.out.println("Введите имя: ");
             String thisFirstName = reader.readLine();
 
@@ -57,12 +68,12 @@ public class Doctor extends User implements UserService {
         System.out.println("Введите специальность: ");
         String thisSpeciality = reader.readLine();
 
-            String thisToken = UUID.randomUUID().toString();
-            Doctor thisDoc = new Doctor(thisFirstName, thisLastName, thisLogin, thisPassword, thisSpeciality, thisToken);
-            thisDoc.setThisDoctorsPatients(new ArrayList<>());
+//            String thisToken = UUID.randomUUID().toString();
+            Doctor thisDoc = new Doctor(thisFirstName, thisLastName, thisLogin, thisPassword, thisSpeciality);
             Server.doctors.add(thisDoc);
 
-            Server.currentDoctor = Server.getDoctorByToken(thisToken);
+
+            Server.currentDoctor = Server.getDoctorByLogin(thisLogin);
             System.out.println("Пользователь зарегистрирован.");
             System.out.println("1: Регистрация нового пользователя");
             System.out.println("2: Вход");
@@ -73,11 +84,9 @@ public class Doctor extends User implements UserService {
                 signUp();
             }
             if (s.equals("2")) {
-                logIn();
+                Server.doctors.get(0).logIn();
             }
-            Gson gson = new Gson();
-            return gson.toJson(String.join("|", thisFirstName, thisLastName,
-                    thisLogin, thisPassword, thisSpeciality, thisToken));
+            return objectMapper.writeValueAsString(thisDoc);
         }
 
         @SneakyThrows
@@ -159,15 +168,18 @@ public class Doctor extends User implements UserService {
 
         }
 
-
+        @SneakyThrows
         public void viewMyPatients() {
-            System.out.println("Мои пациенты: ");
-            Server.patients.
-                    stream()
-                    .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
-                    .forEach(patient -> System.out.println(patient.getLogin() + "|"
-                            + patient.getFirstName() + " " + patient.getLastName()
-                            + "|" + patient.getDiagnosis()));
+            try {
+                System.out.println("Мои пациенты: ");
+                Server.currentDoctor.patients.stream()
+    //                    .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
+                        .forEach(patient -> System.out.println(patient.getLogin() + "|"
+                                + patient.getFirstName() + " " + patient.getLastName()
+                                + "|" + patient.getDiagnosis()));
+            } catch (Exception e) {
+                System.out.println("Нет пациентов");
+            }
 
             System.out.println("=================================");
             doctorsMenu();
@@ -175,9 +187,8 @@ public class Doctor extends User implements UserService {
 
     public void viewMyPatients(String diagnosis) {
         System.out.println("Мои пациенты с диагнозом " + diagnosis);
-        Server.patients.
+        patients.
                 stream()
-                .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
                 .filter(patient -> patient.getDiagnosis().equals(diagnosis))
                 .forEach(patient -> System.out.println(patient.getLogin() + "|"
                         + patient.getFirstName() + " " + patient.getLastName()));
@@ -188,9 +199,8 @@ public class Doctor extends User implements UserService {
 
     public void viewMyPatientsByPrescription(String prescription) {
         System.out.println("Мои пациенты с назначением: " + prescription);
-        Server.patients.
+        patients.
                 stream()
-                .filter(patient -> patient.getDoctor().equals(Server.currentDoctor))
                 .filter(patient -> patient.getProcedures().containsKey(prescription)|| patient.getMedicines().containsKey(prescription))
                 .forEach(patient -> System.out.println(patient.getLogin() + "|"
                         + patient.getFirstName() + " " + patient.getLastName()));
@@ -227,14 +237,14 @@ public class Doctor extends User implements UserService {
                             if (frequency < 1) {
                                 throw new RuntimeException("Неверное значение");
                             }
-                            patient.medicines.put(medName, frequency);
+                            patient.getMedicines().put(medName, frequency);
 
                         } catch (NumberFormatException e) {
                             System.out.println("Невеерное значение");
                             addPrescription();
                         }
                     }
-                    writeMedicines();
+//                    writeMedicines();
                 }
                 if (s.equals("2")) {
                     while (true) {
@@ -268,9 +278,9 @@ public class Doctor extends User implements UserService {
                                 System.out.println("Неверные данные");
                             }
                         }
-                        patient.procedures.put(prName, days);
+                        patient.getProcedures().put(prName, days);
                     }
-                    writeProcedures();
+//                    writeProcedures();
                 }
                 System.out.println("1: Добавить назначение");
                 System.out.println("2: Вернуться в меню");
@@ -360,9 +370,8 @@ public class Doctor extends User implements UserService {
 
             Patient current = new Patient(firstName, lastName, login, password, Server.currentDoctor, diagnosis);
             current.setDoctor(Server.currentDoctor);
-            Server.patients.add(current);
-            Server.currentDoctor.thisDoctorsPatients.add(current);
-            Server.savePatient();
+            Server.currentDoctor.patients.add(current);
+//            Server.patients.add(current);
             doctorsMenu();
         }
 
@@ -384,7 +393,7 @@ public class Doctor extends User implements UserService {
                 patient.setDoctor(Server.doctors.get(new Random().nextInt(Server.doctors.size() - 1)));
             }});
 
-            Server.updatePatients();
+//            Server.updatePatients();
 
             System.out.println("Аккаунт удалён");
         }
@@ -403,14 +412,14 @@ public class Doctor extends User implements UserService {
             if (s.equals("1")) {
                 System.out.println("Введите название лекарства");
                 String med = reader.readLine();
-                Server.currentPatient.medicines.remove(med);
-                writeMedicines();
+                Server.currentPatient.getMedicines().remove(med);
+//                writeMedicines();
             }
             if (s.equals("2")) {
                 System.out.println("Введите название процедуры");
                 String procedure = reader.readLine();
-                Server.currentPatient.procedures.remove(procedure);
-                writeProcedures();
+                Server.currentPatient.getProcedures().remove(procedure);
+//                writeProcedures();
             }
             doctorsMenu();
         }
